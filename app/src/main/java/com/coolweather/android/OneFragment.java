@@ -8,10 +8,12 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ import com.coolweather.android.gson.Weather;
 
 public class OneFragment extends Fragment {
     private View view;
+
     private Button btn_nav;
     private ScrollView weatherLayout;
     private TextView titleCity;
@@ -35,7 +38,9 @@ public class OneFragment extends Fragment {
     private TextView carWashText;
     private TextView sportText;
     private View view_statusBar;
-
+    private FrameLayout weather_layout;
+    private int flag=3;
+    private GestureDetector mGesture = null;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,6 +52,11 @@ public class OneFragment extends Fragment {
                 Windowstyle.getStateBarHeight(getActivity())));
 
         weatherLayout=(ScrollView)view.findViewById(R.id.weather_layout);
+       /* weather_layout=(FrameLayout)view.findViewById(R.id.weatherlayout);
+        weather_layout.setBackgroundResource(R.drawable.addbg);
+        weather_layout.setOnTouchListener(this);
+        weather_layout.setLongClickable(true);*/
+
         titleCity=(TextView)view.findViewById(R.id.title_city);
         titleUpdateTime=(TextView)view.findViewById(R.id.title_update_time);
         degreeText=(TextView)view.findViewById(R.id.degree_text);
@@ -57,6 +67,7 @@ public class OneFragment extends Fragment {
         comfortText=(TextView)view.findViewById(R.id.comfort_text);
         carWashText=(TextView)view.findViewById(R.id.car_wash_text);
         sportText=(TextView)view.findViewById(R.id.sport_text);
+
         btn_nav=(Button)view.findViewById(R.id.nav_button);
         btn_nav.setOnClickListener(new View.OnClickListener() {
             @Override

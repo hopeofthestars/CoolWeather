@@ -49,7 +49,7 @@ public class WeatherAddActivity extends AppCompatActivity {
         Log.d("WH","Height:"+height+"");
 
         setContentView(R.layout.activity_weather_add);
-        ListBtn_Add=new LinkedList<Button>();
+        ListBtn_Add=new LinkedList<Button>();//将添加的城市装入数组中
         ListText_Def=new LinkedList<TextView>();
         linearLayout=(LinearLayout)findViewById(R.id.linearlayout);
         btn_add=(Button)findViewById(R.id.btn_add);

@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.coolweather.android.db.County_Addition;
@@ -26,7 +28,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
-
+    private ImageView imageView;
     private int weatherNum=0,defNum;
     private int LEFT=1000,RIGHT=1001;
     private int STATE=1;
@@ -35,9 +37,13 @@ public class WeatherActivity extends AppCompatActivity {
     private TwoFragment fragmentTwo;
     private float x1=0;
     private float x2=0;
+    private int flag=3;
+    private FrameLayout weather_layout;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        imageView=(ImageView)findViewById(R.id.beijing_pic);//背景图
+
         if(Build.VERSION.SDK_INT>=21){//如果版本号大于或等于21
             View decorView=getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -45,10 +51,36 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);//将状态栏设置为透明色
         }
         setContentView(R.layout.activity_weather);
+        //weather_layout.setOnTouchListener(this);
         Log.d("TAG","onCreate");
         initFragment();
+        lodimage();//加载背景图片
     }
+    /*private boolean fling(MotionEvent e1,MotionEvent e2, MotionEvent e3,MotionEvent e4,float vlocity) {
+        if (e1.getX() - e2.getX() > 100) {
+            if (flag == 3) {
+                weather_layout.setBackgroundResource(R.drawable.addbg);
+                flag=4;
+                return true;
 
+            }
+            if(flag==4){
+                weather_layout.setBackgroundResource(R.drawable.bg);
+                flag=5;
+                return true;
+            }
+            if(flag==1){
+                weather_layout.setBackgroundResource(R.drawable.addbg);
+                flag=2;
+                return true;
+            }
+            if(flag==2){
+                weather_layout.setBackgroundResource(R.drawable.bg);
+                flag=3;
+                return true;
+            }
+        }*/
+    
     @Override
     protected void onStart() {
         super.onStart();
@@ -76,7 +108,7 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {//左右滑动切换Fragment
         if(event.getAction() == MotionEvent.ACTION_DOWN){
             x1=event.getX();
         }
@@ -136,6 +168,9 @@ public class WeatherActivity extends AppCompatActivity {
             STATE=1;
         }
     }
+    private void lodimage(){
+
+    }
     public void requestWeather(final String weatherId, final County_Addition county_addition, final int frag_state){
         String weatherUrl="http://guolin.tech/api/weather?cityid="+weatherId+
                 "&key=63660528a9dc4f968243a7f0669cbe26";
@@ -161,6 +196,10 @@ public class WeatherActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+            }
+            private void lodimage(){//加载背景图片
+
             }
             public void onFailure(Call call, IOException e){
                 e.printStackTrace();

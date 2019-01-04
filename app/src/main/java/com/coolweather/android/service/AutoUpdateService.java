@@ -14,11 +14,15 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.coolweather.android.R;
 import com.coolweather.android.WeatherActivity;
+import com.coolweather.android.db.County_Addition;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
+import org.litepal.crud.DataSupport;
+
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -33,10 +37,12 @@ public class AutoUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        SharedPreferences preferences=getSharedPreferences("data",MODE_PRIVATE);
+        Float num=preferences.getFloat("time",8);
         updateWeather();
         updateBingPic();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int anHour = 8 * 60 * 60 * 1000; // 这是8小时的毫秒数
+        int anHour = (int)(num * 60 * 60 * 1000); // 这是8小时的毫秒数
         long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
         Intent i = new Intent(this, AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
@@ -48,31 +54,36 @@ public class AutoUpdateService extends Service {
     /**
      * 更新天气信息。
      */
-    private void updateWeather(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = prefs.getString("weather", null);
-        if (weatherString != null) {
-            // 有缓存时直接解析天气数据
-            Weather weather = Utility.handleWeatherResponse(weatherString);
-            String weatherId = weather.basic.weatherId;
-            String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=a0c5144814fa4c7ba436c559caa8a680";
-            HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String responseText = response.body().string();
-                    Weather weather = Utility.handleWeatherResponse(responseText);
-                    if (weather != null && "ok".equals(weather.status)) {
-                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
-                        editor.putString("weather", responseText);
-                        editor.apply();
-                    }
-                }
+    private void updateWeather() {
+        List<County_Addition> countyAdditions= DataSupport.findAll(County_Addition.class);
+        for(final County_Addition countyAddition:countyAdditions) {
+            String weatherString=countyAddition.getCountyWeather();
+            if (weatherString != null) {
+                // 有缓存时直接解析天气数据
+                Weather weather = Utility.handleWeatherResponse(weatherString);
+                String weatherId = weather.basic.weatherId;
+                String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=a0c5144814fa4c7ba436c559caa8a680";
+                HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String responseText = response.body().string();
+                        final Weather weather = Utility.handleWeatherResponse(responseText);
 
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                }
-            });
+                        if (weather != null && "ok".equals(weather.status)) {
+                            countyAddition.setCountyWeather(responseText);
+                            countyAddition.save();
+                        } else {
+                            Toast.makeText(getBaseContext(), "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getBaseContext(), "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 

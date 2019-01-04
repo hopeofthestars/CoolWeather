@@ -2,11 +2,13 @@ package com.coolweather.android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -20,12 +22,13 @@ import android.widget.TextView;
 
 import com.coolweather.android.gson.Forecast;
 import com.coolweather.android.gson.Weather;
+import com.coolweather.android.service.AutoUpdateService;
 
 
 public class OneFragment extends Fragment {
     private View view;
 
-    private Button btn_nav;
+    private Button btn_nav,btn_set;
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView titleUpdateTime;
@@ -40,6 +43,7 @@ public class OneFragment extends Fragment {
     private View view_statusBar;
     private FrameLayout weather_layout;
     private int flag=3;
+    Boolean dir;
     private GestureDetector mGesture = null;
     @Nullable
     @Override
@@ -76,6 +80,17 @@ public class OneFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        btn_set=(Button)view.findViewById(R.id.setting);
+        btn_set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getActivity(),SettingActivity.class);
+                startActivity(intent);
+            }
+        });
+        SharedPreferences pre = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        dir=pre.getBoolean("key1", false);
         return view;
     }
     public void showWeatherInfo(Weather weather){
@@ -112,7 +127,13 @@ public class OneFragment extends Fragment {
         carWashText.setText(carWash);
         sportText.setText(sport);
         weatherLayout.setVisibility(View.VISIBLE);
+        if(dir){
+        Intent intent=new Intent(getContext(), AutoUpdateService.class);
+        getContext().startService(intent);
+        }
     }
+
+
     /*判断fragment是否被隐藏*/
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);

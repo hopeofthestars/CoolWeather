@@ -1,0 +1,8 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+        <SwitchPreference
+            android:key="key1"
+            android:title="自动更新"
+            android:summary="自动更新天气"
+            android:defaultValue="true" />
+</PreferenceScreen>

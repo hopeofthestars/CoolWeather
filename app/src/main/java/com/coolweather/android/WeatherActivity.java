@@ -1,11 +1,14 @@
 package com.coolweather.android;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.coolweather.android.db.County_Addition;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
@@ -27,6 +31,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static android.R.attr.id;
+
 public class WeatherActivity extends AppCompatActivity {
     private ImageView imageView;
     private int weatherNum=0,defNum;
@@ -39,6 +45,7 @@ public class WeatherActivity extends AppCompatActivity {
     private float x2=0;
     private int flag=3;
     private FrameLayout weather_layout;
+    private ImageView bingPicImg;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +60,16 @@ public class WeatherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather);
         //weather_layout.setOnTouchListener(this);
         Log.d("TAG","onCreate");
+        bingPicImg=(ImageView)findViewById(R.id.bing_pic_img);
+        SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(this);
+        String bingPic=preferences.getString("bing_pic",null);
+        if(bingPic!=null){
+            Glide.with(this).load(bingPic).into(bingPicImg);
+        }else{
+            lodimage();
+        }
         initFragment();
-        lodimage();//加载背景图片
+        //加载背景图片
     }
     /*private boolean fling(MotionEvent e1,MotionEvent e2, MotionEvent e3,MotionEvent e4,float vlocity) {
         if (e1.getX() - e2.getX() > 100) {
@@ -169,7 +184,26 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
     private void lodimage(){
-
+        final String requestBingPic="http://guolin.tech/api/bing_pic";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+               final String bingPic =response.body().string();
+                SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("bing_pic",bingPic);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
+                    }
+                });
+            }
+            @Override
+            public void onFailure(Call call, IOException e) {
+             e.printStackTrace();
+            }
+        });
     }
     public void requestWeather(final String weatherId, final County_Addition county_addition, final int frag_state){
         String weatherUrl="http://guolin.tech/api/weather?cityid="+weatherId+
@@ -198,9 +232,6 @@ public class WeatherActivity extends AppCompatActivity {
                 });
 
             }
-            private void lodimage(){//加载背景图片
-
-            }
             public void onFailure(Call call, IOException e){
                 e.printStackTrace();
                 runOnUiThread(new Runnable() {
@@ -212,4 +243,5 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
     }
+
 }

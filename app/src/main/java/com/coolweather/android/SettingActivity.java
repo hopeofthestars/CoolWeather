@@ -33,14 +33,9 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-
-      /*Fragment preferenceFragment = new BlankFragment();
-      FragmentTransaction transaction = getFragmentManager().beginTransaction();
-      transaction.add(R.id.list_container,preferenceFragment).commit();*/
-      editText=(EditText)findViewById(R.id.edit_time);
-      BlankFragment blankFragment=(BlankFragment)getFragmentManager().findFragmentById(R.id.blankfragment);
-     // sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getActivity());
-      switchPreference=(SwitchPreference)blankFragment.findPreference("key1");
+        editText=(EditText)findViewById(R.id.edit_time);
+        BlankFragment blankFragment=(BlankFragment)getFragmentManager().findFragmentById(R.id.blankfragment);
+        switchPreference=(SwitchPreference)blankFragment.findPreference("key1");
         SharedPreferences preferences=getSharedPreferences("data",MODE_PRIVATE);
         String text=String.valueOf(preferences.getFloat("time",8));
         editText.setText(text);

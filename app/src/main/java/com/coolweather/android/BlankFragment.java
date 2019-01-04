@@ -32,7 +32,6 @@ public class BlankFragment extends PreferenceFragment{
         addPreferencesFromResource(R.xml.app_preferences);
         SettingActivity settingActivity=(SettingActivity)getActivity();
         settingActivity.findViewById(R.id.edit_time);
-
     }
 
     @Override
